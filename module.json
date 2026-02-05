@@ -1,0 +1,43 @@
+{
+    "id": "sf2e-forge-custom",
+    "title": "SF2e Forge Custom Rules",
+    "description": "Custom rules and homebrew modifications for the Starfinder Second Edition system in Foundry VTT.",
+    "version": "0.1.0",
+    "authors": [
+        {
+            "name": "peterg"
+        }
+    ],
+    "compatibility": {
+        "minimum": "13",
+        "verified": "13.351",
+        "maximum": "13"
+    },
+    "relationships": {
+        "systems": [
+            {
+                "id": "sf2e",
+                "type": "system",
+                "compatibility": {
+                    "minimum": "0.0.4"
+                }
+            }
+        ]
+    },
+    "system": ["sf2e"],
+    "esmodules": ["dist/module.js"],
+    "styles": ["dist/module.css"],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        }
+    ],
+    "socket": false,
+    "url": "",
+    "manifest": "",
+    "download": "",
+    "bugs": "",
+    "changelog": ""
+}

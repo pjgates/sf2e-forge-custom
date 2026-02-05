@@ -1,0 +1,15 @@
+/**
+ * SF2e Forge Custom Rules — Module Styles
+ * Add custom CSS/SCSS for any UI changes your module introduces.
+ */
+
+// Module-scoped custom properties (CSS variables)
+:root {
+    --sf2e-forge-accent: #4a90d9;
+    --sf2e-forge-bg: #1a1a2e;
+}
+
+// Namespace all module styles to avoid collisions
+.sf2e-forge-custom {
+    // Add your styles here
+}

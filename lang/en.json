@@ -1,0 +1,10 @@
+{
+    "sf2e-forge-custom": {
+        "settings": {
+            "enableCustomRules": {
+                "name": "Enable Custom Rules",
+                "hint": "Toggle all custom rules provided by this module on or off."
+            }
+        }
+    }
+}
