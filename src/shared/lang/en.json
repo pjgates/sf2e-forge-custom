@@ -1,0 +1,20 @@
+{
+    "sf2e-forge-custom": {
+        "settings": {
+            "enableCustomRules": {
+                "name": "Enable Custom Rules",
+                "hint": "Toggle all custom rules provided by this module on or off."
+            },
+            "enableTargetHelper": {
+                "name": "Enable Target Helper",
+                "hint": "Show per-target save rows on spell, area, and action chat cards. Required for Players Roll All Dice."
+            }
+        },
+        "degree": {
+            "criticalSuccess": "Critical Success",
+            "success": "Success",
+            "failure": "Failure",
+            "criticalFailure": "Critical Failure"
+        }
+    }
+}

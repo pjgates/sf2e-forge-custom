@@ -1,0 +1,27 @@
+/**
+ * SF2e Forge Custom Rules — Shared CSS Custom Properties
+ */
+
+// Module-scoped custom properties (CSS variables)
+:root {
+    --sf2e-forge-accent: #4a90d9;
+    --sf2e-forge-bg: #1a1a2e;
+
+    // PRAD color palette
+    --prad-armor-accent: #5b8dd9;
+    --prad-overcome-accent: #9b59b6;
+    --prad-crit-success: #00a651;
+    --prad-success: #4caf50;
+    --prad-failure: #e65100;
+    --prad-crit-failure: #c62828;
+    --prad-dc-badge-bg: #3a3a5c;
+    --prad-dc-badge-text: #e0e0e0;
+    --prad-card-bg: #1e1e30;
+    --prad-card-border: #3a3a5c;
+    --prad-card-header-bg: #2a2a44;
+}
+
+// Namespace all module styles to avoid collisions
+.sf2e-forge-custom {
+    // Add your styles here
+}

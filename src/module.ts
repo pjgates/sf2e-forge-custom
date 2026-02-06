@@ -12,7 +12,7 @@ import { onReady } from "./hooks/ready.js";
 // Import styles so Vite bundles them into dist/module.css
 import "../styles/module.scss";
 
-const MODULE_ID = "sf2e-forge-custom";
+import { MODULE_ID } from "./constants.js";
 
 // ─── Initialization ──────────────────────────────────────────────────────────
 
