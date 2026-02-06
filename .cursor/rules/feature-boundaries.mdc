@@ -1,0 +1,33 @@
+---
+description: Cross-feature import boundaries — only import through barrel index.ts files
+alwaysApply: true
+---
+
+# Feature Import Boundaries
+
+Cross-feature imports must go through the feature's `index.ts` barrel.
+This is enforced by `eslint-plugin-boundaries` at lint time.
+
+## Rules
+
+1. **Feature -> Feature**: Only import from `<feature>/index.ts`, never from internal files like `<feature>/render.ts` or `<feature>/types.ts`.
+2. **Hooks -> Feature**: Same rule — only import from `<feature>/index.ts`.
+3. **Shared -> Feature**: Forbidden. `src/shared/` must never import from any feature. If shared code needs a type or utility, move it into `src/shared/`.
+4. **Feature -> Shared**: Always allowed (any file).
+5. **Within same feature**: Any file can import any other file freely.
+
+## When types are needed by shared
+
+If `src/shared/` needs a type that currently lives in a feature:
+
+1. Move the type definition to `src/shared/types.ts`
+2. Re-export it from the feature's `types.ts` so internal consumers don't break:
+   ```typescript
+   // src/<feature>/types.ts
+   export type { MyType } from "../shared/types.js";
+   ```
+
+## ESLint enforcement
+
+The `boundaries/entry-point` and `boundaries/element-types` rules in
+`eslint.config.js` enforce these constraints. Run `npm run lint` to check.
