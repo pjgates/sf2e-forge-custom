@@ -31,10 +31,10 @@
         {
             "lang": "en",
             "name": "English",
-            "path": "lang/en.json"
+            "path": "dist/lang/en.json"
         }
     ],
-    "socket": false,
+    "socket": true,
     "url": "",
     "manifest": "",
     "download": "",
