@@ -34,6 +34,30 @@
             "path": "dist/lang/en.json"
         }
     ],
+    "packs": [
+        {
+            "name": "the-forge-entities",
+            "label": "The Forge — Entities",
+            "path": "packs/the-forge-entities",
+            "type": "JournalEntry",
+            "system": "sf2e",
+            "ownership": {
+                "PLAYER": "LIMITED",
+                "ASSISTANT": "OWNER"
+            }
+        },
+        {
+            "name": "the-forge-bestiary",
+            "label": "The Forge — Bestiary",
+            "path": "packs/the-forge-bestiary",
+            "type": "Actor",
+            "system": "sf2e",
+            "ownership": {
+                "PLAYER": "LIMITED",
+                "ASSISTANT": "OWNER"
+            }
+        }
+    ],
     "socket": true,
     "url": "https://github.com/pjgates/sf2e-forge-custom",
     "manifest": "https://github.com/pjgates/sf2e-forge-custom/releases/latest/download/module.json",
