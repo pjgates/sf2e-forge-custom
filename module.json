@@ -35,9 +35,9 @@
         }
     ],
     "socket": true,
-    "url": "",
-    "manifest": "",
+    "url": "https://github.com/pjgates/sf2e-forge-custom",
+    "manifest": "https://github.com/pjgates/sf2e-forge-custom/releases/latest/download/module.json",
     "download": "",
-    "bugs": "",
-    "changelog": ""
+    "bugs": "https://github.com/pjgates/sf2e-forge-custom/issues",
+    "changelog": "https://github.com/pjgates/sf2e-forge-custom/releases"
 }
