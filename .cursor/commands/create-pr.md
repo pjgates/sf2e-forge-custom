@@ -5,9 +5,11 @@ Split the current working tree changes into well-organized commits, push to a br
 ## Steps
 
 1. **Identify the related issue.** Ask me which GitHub issue this work addresses. If I provide an issue number, fetch its title and body with:
+
    ```
    gh issue view <number> --json number,title,body
    ```
+
    Use the issue number throughout: in the branch name, commit messages, and PR title. If I say there's no issue, proceed without one.
 
 2. **Assess the current state.** Run these in parallel:
@@ -17,9 +19,11 @@ Split the current working tree changes into well-organized commits, push to a br
    - `git log --oneline -5` to see recent commit style
 
 3. **Create a feature branch (if on main).** Pick a short, descriptive branch name that includes the issue number if one exists (e.g. `feat/42-prad-and-target-helper`, `fix/17-build-config`). Run:
+
    ```
    git checkout -b <branch-name>
    ```
+
    If already on a non-main branch, stay on it.
 
 4. **Group changes into logical commits.** Analyze all modified, deleted, and untracked files. Group them by concern — for example:
@@ -35,13 +39,16 @@ Split the current working tree changes into well-organized commits, push to a br
    Not every group needs its own commit — merge small related groups together. Aim for 2-6 commits that each tell a coherent story. Each commit message should follow conventional-commit style (`feat:`, `chore:`, `refactor:`, `fix:`, `docs:`) and briefly explain *why*, not just *what*. If there is a linked issue, include `#<number>` in each commit message (e.g. `feat: add prad attack interception #42`).
 
 5. **Stage and commit each group sequentially.** For each logical group:
+
    ```
    git add <files...>
    git commit -m "<type>: <description> #<issue>"
    ```
+
    After all commits, run `git status` to confirm a clean working tree.
 
 6. **Push the branch.**
+
    ```
    git push -u origin HEAD
    ```
@@ -53,6 +60,7 @@ Split the current working tree changes into well-organized commits, push to a br
    - A `## Commits` section listing each commit with its message so the PR description serves as a changelog
 
    Use a HEREDOC for the body to preserve formatting:
+
    ```
    gh pr create --title "<title>" --body "$(cat <<'EOF'
    Closes #<number>
