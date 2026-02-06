@@ -1,0 +1,20 @@
+<div class="pf2e chat-card prad-attack-card"
+    data-attacker-id="{{attackerId}}"
+    data-attacker-token-id="{{attackerTokenId}}"
+>
+    <header class="card-header flexrow">
+        <img src="{{attackerImg}}" alt="{{attackerName}}" />
+        <h3>{{attackerName}}: {{weaponName}}</h3>
+    </header>
+
+    <section class="card-buttons">
+        <button type="button"
+            data-action="prad-armor-save"
+            data-dc="{{attackDC}}"
+            data-weapon="{{weaponName}}"
+            data-attacker-id="{{attackerId}}"
+        >
+            {{{saveLabel}}}
+        </button>
+    </section>
+</div>

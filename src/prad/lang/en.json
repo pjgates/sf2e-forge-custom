@@ -1,0 +1,41 @@
+{
+    "sf2e-forge-custom": {
+        "settings": {
+            "playersRollAllDice": {
+                "name": "Players Roll All Dice",
+                "hint": "Enable the 'Players Roll All Dice' variant rule. NPC attacks become player armor saves, and NPC saves become player overcome checks. Requires Target Helper to be enabled.",
+                "requiresTargetHelper": "Enable Target Helper first to use this setting."
+            }
+        },
+        "prad": {
+            "armorSave": "Armor Save",
+            "armorLabel": "Armor",
+            "overcomeCheck": "Overcome Check",
+            "attackDC": "Attack DC",
+            "saveDC": "Save DC",
+            "rollArmorSave": "Roll Armor Save",
+            "rollOvercome": "Roll Overcome",
+            "armorSaveLabel": "{name} rolls an Armor Save against {npcName}'s {weaponName}",
+            "overcomeLabel": "{name} rolls to Overcome {npcName}'s {saveType} save",
+            "variantActive": "{name} variant rule is active.",
+            "noToken": "No token selected. Select your character token first.",
+            "noOvercomeStatistic": "Cannot find a spellcasting or class DC statistic to roll with.",
+            "resultCriticalSuccess": "Critical Success",
+            "resultSuccess": "Success",
+            "resultFailure": "Failure",
+            "resultCriticalFailure": "Critical Failure",
+            "npcAttackIntercepted": "Attack intercepted — player rolls armor save",
+            "npcSaveIntercepted": "Save intercepted — player rolls overcome check",
+            "targetEffect": {
+                "criticalHit": "Critical Hit!",
+                "hit": "Hit",
+                "miss": "Miss",
+                "criticalMiss": "Critical Miss",
+                "critFailSave": "Critical Failure on Save",
+                "failSave": "Failure on Save",
+                "successSave": "Success on Save",
+                "critSuccessSave": "Critical Success on Save"
+            }
+        }
+    }
+}
