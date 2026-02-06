@@ -1,0 +1,51 @@
+---
+description: Feature folder co-location conventions for styles, templates, i18n, and code
+alwaysApply: true
+---
+
+# Feature Folder Structure
+
+Each feature lives in `src/<feature>/` and co-locates all its assets:
+
+```
+src/<feature>/
+  lang/en.json              # i18n strings (auto-merged into dist/lang/en.json at build)
+  styles/<feature>.scss     # Scoped styles
+  templates/<name>.hbs      # Handlebars templates
+  index.ts                  # Barrel: exports init/ready hooks, public API
+  types.ts                  # Feature-specific types
+  ...other code files...
+```
+
+Cross-cutting utilities go in `src/shared/` (same sub-structure for lang/styles).
+
+## Adding a new feature
+
+1. Create `src/<feature>/` with the sub-structure above
+2. Add `@use '../src/<feature>/styles/<feature>'` to `styles/module.scss`
+3. Add a static-copy target in `vite.config.ts`:
+   `{ src: "src/<feature>/templates/**/*", dest: "templates/<feature>" }`
+4. Lang merging is automatic (the build plugin globs `src/**/lang/*.json`)
+5. Wire the feature's init/ready exports into `src/hooks/init.ts` / `src/hooks/ready.ts`
+
+## i18n conventions
+
+- Nest all keys under `sf2e-forge-custom.<feature>.*`
+- Feature-specific settings go in the feature's `lang/en.json` under `sf2e-forge-custom.settings.*`
+- Shared keys (core settings, degree labels) go in `src/shared/lang/en.json`
+
+## Template path constants
+
+Templates are served from `dist/templates/<feature>/`. In code, reference them as:
+
+```typescript
+const TEMPLATE = `modules/${MODULE_ID}/dist/templates/<feature>/<name>.hbs`;
+```
+
+Register templates in a function exported from the feature and called during the `init` hook.
+
+## Styles
+
+- Feature SCSS files should NOT `@use` the shared variables file — the barrel `styles/module.scss`
+  handles load order via `@use` statements.
+- Prefix CSS classes with the feature name (e.g. `.prad-*`, `.th-*`) to avoid collisions.

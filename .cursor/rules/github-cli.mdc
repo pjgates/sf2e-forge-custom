@@ -1,0 +1,67 @@
+---
+description: Use GitHub CLI (gh) to interact with GitHub links and resources instead of web fetching or browser tools
+alwaysApply: true
+---
+
+# GitHub CLI Usage
+
+When the user provides a GitHub URL or asks about GitHub resources (PRs, issues, repos, releases, etc.), **always use the `gh` CLI** instead of web-fetching or browser tools.
+
+## Resolving GitHub URLs
+
+Parse the URL to determine the resource type and use the matching `gh` command:
+
+| URL pattern | Command |
+|---|---|
+| `github.com/OWNER/REPO/pull/NUMBER` | `gh pr view NUMBER -R OWNER/REPO` |
+| `github.com/OWNER/REPO/issues/NUMBER` | `gh issue view NUMBER -R OWNER/REPO` |
+| `github.com/OWNER/REPO` | `gh repo view OWNER/REPO` |
+| `github.com/OWNER/REPO/releases` | `gh release list -R OWNER/REPO` |
+| `github.com/OWNER/REPO/releases/tag/TAG` | `gh release view TAG -R OWNER/REPO` |
+| `github.com/OWNER/REPO/actions/runs/ID` | `gh run view ID -R OWNER/REPO` |
+
+## Key commands
+
+### Pull Requests
+- `gh pr view NUMBER` — view PR details (title, body, status, reviews)
+- `gh pr list` — list open PRs
+- `gh pr checks NUMBER` — show CI status
+- `gh pr diff NUMBER` — view the diff
+- `gh pr create` — create a PR
+- `gh pr checkout NUMBER` — check out a PR branch locally
+- `gh pr comment NUMBER -b "text"` — add a comment
+- `gh pr merge NUMBER` — merge a PR
+
+### Issues
+- `gh issue view NUMBER` — view issue details
+- `gh issue list` — list open issues
+- `gh issue create` — create an issue
+- `gh issue comment NUMBER -b "text"` — add a comment
+
+### Repositories
+- `gh repo view OWNER/REPO` — view repo info
+- `gh repo clone OWNER/REPO` — clone a repo
+
+### API (for anything not covered above)
+- `gh api repos/OWNER/REPO/pulls/NUMBER/comments` — read PR review comments
+- `gh api repos/OWNER/REPO/issues/NUMBER/comments` — read issue comments
+- `gh api ENDPOINT --jq 'QUERY'` — extract specific fields with jq
+
+### Releases & Actions
+- `gh release list` — list releases
+- `gh release view TAG` — view a specific release
+- `gh run list` — list workflow runs
+- `gh run view ID` — view a specific run
+
+## Cross-repo flag
+
+When the target repo differs from the current working directory, always pass `-R OWNER/REPO`.
+
+## Prefer structured output
+
+Use `--json FIELDS` and `--jq QUERY` flags to get machine-readable output when you need to extract specific data:
+
+```bash
+gh pr view 123 --json title,body,state,reviews
+gh issue list --json number,title,labels --jq '.[] | "\(.number): \(.title)"'
+```

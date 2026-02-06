@@ -1,0 +1,49 @@
+---
+description: Reference the PF2e/SF2e system codebase when working on this module
+alwaysApply: true
+---
+
+# PF2e / SF2e System Reference
+
+This Foundry VTT module builds on top of the **Pathfinder 2e / Starfinder 2e system** (PF2e).
+The full system source code lives at:
+
+```
+/Users/peterg/Code/pf2e
+```
+
+## When to consult the system codebase
+
+- Understanding system types, interfaces, or data models
+- Figuring out how the system implements saves, checks, rolls, DCs, or other mechanics
+- Referencing how hooks, sheets, or documents work in the system
+- Looking up system constants, enums, or configuration
+- Checking how the system handles chat messages, damage, or conditions
+
+## Key directories in the system repo
+
+| Path | Contents |
+|------|----------|
+| `src/module/` | Core system module code (actors, items, rules, rolls, etc.) |
+| `src/scripts/hooks/` | System hook implementations (init, ready, setup, etc.) |
+| `src/scripts/config/` | System configuration |
+| `src/util/` | Utility functions |
+| `types/foundry/` | Foundry VTT type definitions |
+| `static/templates/` | Handlebars templates |
+| `static/lang/` | Localization files |
+| `tests/` | Test fixtures and mocks |
+
+## How to use
+
+**Do NOT bulk-read or list the system repo.** Only consult it on-demand when you
+need a specific answer (e.g. a type signature, how a mechanic works, a hook's
+parameters). Use targeted searches (grep/glob for a symbol or filename) to find
+the relevant file, then read only that file.
+
+### Lookup examples
+
+- Save/check rolls → grep for the class or function name in `src/module/system/` or `src/module/actor/`
+- Item data models → search in `src/module/item/`
+- Rule elements → search in `src/module/rules/`
+- DC calculations → search for "dc" in `src/module/`
+- Foundry types → search in `types/foundry/`
