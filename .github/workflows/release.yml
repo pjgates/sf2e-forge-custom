@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp module.json with version and download URL
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          DOWNLOAD="https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/sf2e-forge-custom.zip"
+
+          # Update version and download URL in module.json
+          jq --arg ver "$VERSION" --arg dl "$DOWNLOAD" \
+            '.version = $ver | .download = $dl' \
+            module.json > module.json.tmp && mv module.json.tmp module.json
+
+      - name: Build
+        run: npm run build
+
+      - name: Package zip
+        run: |
+          zip -r sf2e-forge-custom.zip \
+            dist/ \
+            module.json \
+            README.md \
+            LICENSE \
+            CHANGELOG.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            sf2e-forge-custom.zip
+            module.json
+          generate_release_notes: true
