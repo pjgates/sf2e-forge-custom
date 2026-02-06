@@ -1,0 +1,303 @@
+// ─── PRAD Chat Cards ─────────────────────────────────────────────────────────
+
+.prad-chat-card {
+    border: 1px solid var(--prad-card-border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 2px 0;
+    font-size: 13px;
+
+    .prad-header {
+        background: var(--prad-card-header-bg);
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--prad-card-border);
+
+        .prad-title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            i {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .prad-context {
+        padding: 6px 10px;
+        font-style: italic;
+        color: #b0b0c0;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .prad-pc-name {
+        font-weight: 600;
+        font-style: normal;
+        color: #e0e0f0;
+    }
+
+    .prad-npc-name {
+        font-weight: 600;
+        font-style: normal;
+        color: #d0a0a0;
+    }
+
+    .prad-roll-details {
+        padding: 6px 10px;
+
+        .prad-roll-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        .prad-label {
+            font-weight: 500;
+            color: #a0a0b0;
+            font-size: 12px;
+        }
+
+        .prad-formula {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .prad-dc-value {
+            font-weight: 700;
+            font-size: 14px;
+        }
+    }
+
+    .prad-die {
+        display: inline-block;
+        min-width: 22px;
+        text-align: center;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+
+        &.prad-die-nat20 {
+            background: var(--prad-crit-success);
+            color: #fff;
+        }
+
+        &.prad-die-nat1 {
+            background: var(--prad-crit-failure);
+            color: #fff;
+        }
+
+        &.prad-die-normal {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    .prad-result {
+        padding: 8px 10px;
+        border-top: 2px solid var(--prad-card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .prad-player-result,
+        .prad-npc-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prad-result-label {
+            font-weight: 500;
+            font-size: 12px;
+            color: #a0a0b0;
+        }
+
+        .prad-degree,
+        .prad-effect {
+            font-weight: 700;
+            font-size: 13px;
+        }
+    }
+
+    // Degree-based coloring for the result section
+    &.prad-degree-critical-success .prad-result {
+        border-top-color: var(--prad-crit-success);
+        background: rgba(0, 166, 81, 0.1);
+
+        .prad-degree { color: var(--prad-crit-success); }
+    }
+
+    &.prad-degree-success .prad-result {
+        border-top-color: var(--prad-success);
+        background: rgba(76, 175, 80, 0.08);
+
+        .prad-degree { color: var(--prad-success); }
+    }
+
+    &.prad-degree-failure .prad-result {
+        border-top-color: var(--prad-failure);
+        background: rgba(230, 81, 0, 0.08);
+
+        .prad-degree { color: var(--prad-failure); }
+    }
+
+    &.prad-degree-critical-failure .prad-result {
+        border-top-color: var(--prad-crit-failure);
+        background: rgba(198, 40, 40, 0.1);
+
+        .prad-degree { color: var(--prad-crit-failure); }
+    }
+
+    // Type-specific accent colors
+    &.prad-armor-save .prad-header .prad-title {
+        color: var(--prad-armor-accent);
+    }
+
+    &.prad-overcome .prad-header .prad-title {
+        color: var(--prad-overcome-accent);
+    }
+}
+
+// ─── PRAD Overcome Button (injected into spell cards) ────────────────────────
+
+.prad-overcome-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border: 1px solid var(--prad-overcome-accent);
+    border-radius: 4px;
+    background: rgba(155, 89, 182, 0.15);
+    color: var(--prad-overcome-accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+        background: rgba(155, 89, 182, 0.3);
+        color: #fff;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// ─── PRAD DC Badges (injected into NPC sheets) ──────────────────────────────
+
+.prad-dc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--prad-dc-badge-bg);
+    font-size: 11px;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    .prad-dc-badge-label {
+        color: #a0a0b0;
+        font-weight: 500;
+    }
+
+    .prad-dc-badge-value {
+        color: var(--prad-dc-badge-text);
+        font-weight: 700;
+    }
+}
+
+.prad-saves-summary,
+.prad-attacks-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 8px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 11px;
+    color: #b0b0c0;
+}
+
+.prad-save-dc-inline,
+.prad-attack-dc-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+
+    strong {
+        color: #e0e0f0;
+    }
+}
+
+// ─── PRAD PC Sheet Modifier Badges ───────────────────────────────────────────
+
+.prad-modifier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    vertical-align: middle;
+    white-space: nowrap;
+    background: rgba(90, 140, 220, 0.15);
+    border: 1px solid rgba(90, 140, 220, 0.3);
+
+    .prad-badge-label {
+        color: #a0b8d8;
+        font-weight: 500;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .prad-badge-value {
+        color: #e0e8f0;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: monospace;
+    }
+}
+
+.prad-armor-save-badge {
+    background: rgba(91, 141, 217, 0.15);
+    border-color: rgba(91, 141, 217, 0.35);
+    
+    // In SF2e character sheet, display as block below AC
+    .armor-class .ac & {
+        display: flex;
+        margin: 4px 0 0 0;
+        justify-content: center;
+    }
+
+    .prad-badge-label {
+        color: var(--prad-armor-accent);
+    }
+}
+
+.prad-overcome-badge {
+    background: rgba(155, 89, 182, 0.15);
+    border-color: rgba(155, 89, 182, 0.35);
+
+    .prad-badge-label {
+        color: var(--prad-overcome-accent);
+    }
+}
