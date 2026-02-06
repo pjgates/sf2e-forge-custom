@@ -41,36 +41,65 @@ export function onRenderNpcSheet(
 /**
  * Replace save modifiers on the NPC sheet with Save DCs.
  * Changes "+14" to "DC 24" etc.
+ *
+ * NPC sheet DOM structure (per save):
+ *   <li>
+ *     <a class="roll" data-statistic="fortitude" ...>Fort</a>
+ *     <input class="modifier" value="+14" data-property="system.saves.fortitude.value" ...>
+ *   </li>
+ *
+ * We overlay a DC display on the input so the raw modifier is preserved
+ * for Foundry form submission. Clicking the overlay focuses the real input.
  */
 function injectSaveDCs(root: HTMLElement, actor: Actor.Implementation): void {
     for (const saveType of SAVE_TYPES) {
         const saveMod = getSaveModifier(actor, saveType as SaveType);
         const saveDCValue = getSaveDC(saveMod);
 
-        // Try multiple selectors that SF2e/PF2e might use for saves
-        const selectors = [
-            `[data-statistic="${saveType}"]`,
-            `[data-slug="${saveType}"]`,
-            `.save.${saveType}`,
-            `.saves .${saveType}`,
-        ];
+        // Find the <a> roll link by data-statistic, then navigate to its
+        // parent <li> to locate the sibling <input>.
+        const rollLink = root.querySelector<HTMLElement>(
+            `.saves [data-statistic="${saveType}"]`,
+        );
+        if (!rollLink) continue;
 
-        for (const selector of selectors) {
-            const elements = root.querySelectorAll<HTMLElement>(selector);
-            for (const el of elements) {
-                // Don't modify twice
-                if (el.classList.contains("prad-modified")) continue;
-                el.classList.add("prad-modified");
+        const li = rollLink.closest("li");
+        if (!li || li.classList.contains("prad-dc-injected")) continue;
+        li.classList.add("prad-dc-injected");
 
-                // Find and replace the modifier value
-                // SF2e typically shows saves like "+14" - replace with "DC 24"
-                const valueEl = el.querySelector<HTMLElement>('.value, .modifier, [data-value]');
-                if (valueEl) {
-                    valueEl.textContent = `DC ${saveDCValue}`;
-                    valueEl.classList.add("prad-dc-value");
-                }
-            }
-        }
+        const input = li.querySelector<HTMLInputElement>("input.modifier");
+        if (!input) continue;
+
+        // Wrap the input in a positioning container so the overlay
+        // covers only the input, not the roll-link label.
+        const wrapper = document.createElement("span");
+        wrapper.className = "prad-dc-wrapper";
+        input.parentElement!.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // Create an overlay span that displays the DC value.
+        // Copy adjustment classes so the system's colour coding
+        // (red for weak, blue for elite, etc.) is preserved.
+        const overlay = document.createElement("span");
+        overlay.className = "prad-dc-overlay";
+        if (input.classList.contains("adjusted-lower")) overlay.classList.add("adjusted-lower");
+        if (input.classList.contains("adjusted-higher")) overlay.classList.add("adjusted-higher");
+        overlay.textContent = `${saveDCValue}`;
+        wrapper.appendChild(overlay);
+
+        // Clicking the overlay reveals the real input for editing
+        overlay.addEventListener("click", () => {
+            overlay.style.display = "none";
+            input.style.opacity = "1";
+            input.focus();
+            input.select();
+        });
+
+        // When the input loses focus, re-hide it behind the overlay
+        input.addEventListener("blur", () => {
+            overlay.style.display = "";
+            input.style.opacity = "";
+        });
     }
 }
 

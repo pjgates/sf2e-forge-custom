@@ -8,6 +8,7 @@
 
 import { MODULE_ID } from "../constants.js";
 import { onRenderNpcSheet } from "./npc-sheet.js";
+import { onRenderPartySheet } from "./party-sheet.js";
 import { onRenderPcSheet } from "./pc-sheet.js";
 
 /**
@@ -37,6 +38,8 @@ function onRenderActorSheet(
             onRenderNpcSheet(s, html, data);
         } else if (actorType === "character") {
             onRenderPcSheet(s, html, data);
+        } else if (actorType === "party") {
+            onRenderPartySheet(s, html, data);
         }
     } catch (err) {
         console.error(`${MODULE_ID} | PRAD: Error in renderActorSheet hook`, err);

@@ -301,3 +301,38 @@
         color: var(--prad-overcome-accent);
     }
 }
+
+// ─── PRAD NPC Save DC Overlay ────────────────────────────────────────────────
+
+.prad-dc-wrapper {
+    // Inline positioning context that takes the input's place in the layout
+    position: relative;
+    display: inline-block;
+
+    input.modifier {
+        // Keep the input in the DOM for form data but invisible behind overlay
+        opacity: 0;
+    }
+}
+
+.prad-dc-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: text;
+    font-weight: 600;
+    font-size: inherit;
+    color: var(--color-text-light-7, #c0c0cc);
+    white-space: nowrap;
+
+    // Inherit the system's weak/elite colour coding
+    &.adjusted-lower {
+        color: var(--color-pf-text-adjusted-lower);
+    }
+
+    &.adjusted-higher {
+        color: var(--color-pf-text-adjusted-higher);
+    }
+}
