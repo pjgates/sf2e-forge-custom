@@ -10,6 +10,7 @@
         "prad": {
             "armorSave": "Armor Save",
             "armorLabel": "Armor",
+            "armorLabelShort": "Arm",
             "overcomeCheck": "Overcome Check",
             "attackDC": "Attack DC",
             "saveDC": "Save DC",
