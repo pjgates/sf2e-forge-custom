@@ -7,6 +7,10 @@
 
 // Re-export everything from shared/dc.ts
 export {
+    DC_BASE_DEFAULT,
+    DC_BASE_STRICT,
+    setDCBase,
+    getDCBase,
     toDC,
     getAttackDC,
     getSaveDC,

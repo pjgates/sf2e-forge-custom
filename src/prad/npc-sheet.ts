@@ -7,7 +7,7 @@
  */
 
 import { MODULE_ID } from "../constants.js";
-import { getAttackDC, getAttackModifierFromStrike, getSaveDC, getSaveModifier } from "./dc.js";
+import { getAttackDC, getAttackModifierFromStrike, getSaveDC, getSaveModifier, toDC } from "./dc.js";
 import { postAttackCard } from "./intercept-attack.js";
 import { SAVE_TYPES } from "./types.js";
 import type { SaveType } from "./types.js";
@@ -117,7 +117,7 @@ function injectAttackDCs(root: HTMLElement, actor: Actor.Implementation): void {
                     const strikeMatch = text.match(/^Strike\s*([+-]?\d+)$/i);
                     if (strikeMatch) {
                         const mod = parseInt(strikeMatch[1], 10);
-                        dc = 10 + mod;
+                        dc = toDC(mod);
                         btn.textContent = `DC ${dc}`;
                         btn.classList.add("prad-dc-button");
                     }
@@ -127,7 +127,7 @@ function injectAttackDCs(root: HTMLElement, actor: Actor.Implementation): void {
                     if (mapMatch) {
                         const mod = parseInt(mapMatch[1], 10);
                         const mapPenalty = mapMatch[2]; // e.g., "-5"
-                        dc = 10 + mod;
+                        dc = toDC(mod);
                         btn.textContent = `DC ${dc} (MAP ${mapPenalty})`;
                         btn.classList.add("prad-dc-button");
                     }

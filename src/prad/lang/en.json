@@ -5,6 +5,10 @@
                 "name": "Players Roll All Dice",
                 "hint": "Enable the 'Players Roll All Dice' variant rule. NPC attacks become player armor saves, and NPC saves become player overcome checks. Requires Target Helper to be enabled.",
                 "requiresTargetHelper": "Enable Target Helper first to use this setting."
+            },
+            "pradStrictDCs": {
+                "name": "Strict DC Mode (Exact Probabilities)",
+                "hint": "Use DC = 12 + modifier instead of the default 11 + modifier. The default (+11) gives players a small 5% edge; strict mode (+12) exactly preserves the original hit/miss/crit probabilities. Only applies when Players Roll All Dice is enabled."
             }
         },
         "prad": {
