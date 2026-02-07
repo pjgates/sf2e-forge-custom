@@ -99,6 +99,16 @@ function onRenderSettingsConfig(
             thInput.disabled = true;
             thInput.closest(".form-group")?.classList.add("disabled");
         }
+
+        // Disable the strict DC setting when PRAD is off
+        const pradEnabled = game.settings!.get(MODULE_ID, "playersRollAllDice") as boolean;
+        const strictInput = root.querySelector<HTMLInputElement>(
+            `input[name="${MODULE_ID}.pradStrictDCs"]`,
+        );
+        if (strictInput && (!pradEnabled || !masterEnabled)) {
+            strictInput.disabled = true;
+            strictInput.closest(".form-group")?.classList.add("disabled");
+        }
     } catch (err) {
         console.error(`${MODULE_ID} | Error in renderSettingsConfig hook`, err);
     }

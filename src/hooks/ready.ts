@@ -4,7 +4,7 @@
  */
 
 import { MODULE_ID } from "../constants.js";
-import { isPradEnabled, registerAttackInterceptHook, registerPradSheetHooks } from "../prad/index.js";
+import { isPradEnabled, applyDCBaseSetting, registerAttackInterceptHook, registerPradSheetHooks } from "../prad/index.js";
 import { activateTargetHelper, setPradOvercomeEnabled } from "../target-helper/index.js";
 
 export function onReady(): void {
@@ -34,6 +34,10 @@ export function onReady(): void {
     // ─── PRAD (Players Roll All Dice) ────────────────────────────────────
     if (pradEnabled) {
         console.log(`${MODULE_ID} | PRAD: Players Roll All Dice variant is ENABLED`);
+
+        // Apply the DC base setting (+11 default or +12 strict) before
+        // any DC calculations occur.
+        applyDCBaseSetting();
 
         // Inversion 1: NPC attacks → Player armor saves
         registerAttackInterceptHook();

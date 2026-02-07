@@ -4,24 +4,89 @@
  * Pure functions to convert between modifiers and DCs, and to
  * extract modifiers from actor/item system data.
  * Used by both PRAD and Target Helper subsystems.
+ *
+ * ## DC Base: +11 (default) vs +12 (strict)
+ *
+ * When converting a monster's roll into a player-facing DC (the core of
+ * "Players Roll All Dice"), the formula is:
+ *
+ *     DC = BASE + modifier
+ *
+ * **Why not +10?**
+ * In PF2e, "ties go to the roller." In normal play the monster rolls and
+ * wins ties; in PRAD the player rolls and wins ties. Using +10 gives the
+ * player *both* the tie benefit AND removes it from the monster — a 10%
+ * (2-step) swing in the player's favour on every attack.
+ *
+ * **+11 (default — community standard)**
+ * The d20 average is 10.5; rounding up yields 11. This splits the tie
+ * benefit between attacker and defender, leaving only a 5% (1-step)
+ * residual player bias. This is the value recommended by the PF2e
+ * community and Gamemastery Guide variant-rule discussions.
+ *
+ * **+12 (strict — exact probability preservation)**
+ * Using +12 exactly reproduces the original hit / miss / crit-hit /
+ * crit-miss probabilities.  The trade-off is that ties on the player's
+ * defense roll now count *against* them, which can feel inconsistent
+ * with every other roll they make in PF2e.
+ *
+ * ### Proof (concrete example)
+ *
+ * Monster +5 attack vs AC 15 (defense mod = AC − 10 = +5):
+ *
+ * | Formula | Player defends when… | P(hit) | Original P(hit) |
+ * |---------|----------------------|--------|-----------------|
+ * | +10     | d20 ≥ 10             | 45%    | 55% ← 10% off  |
+ * | +11     | d20 ≥ 11             | 50%    | 55% ←  5% off  |
+ * | +12     | d20 ≥ 12             | 55%    | 55% ✓ exact     |
  */
 
 import type { SaveType } from "./types.js";
 
-// ─── Modifier ↔ DC conversions (pure) ────────────────────────────────────────
+// ─── DC Base Configuration ───────────────────────────────────────────────────
+
+/**
+ * Default DC base: uses the d20 average (10.5 → 11).
+ * Gives a small (5%) probability bias favouring the player.
+ */
+export const DC_BASE_DEFAULT = 11;
+
+/**
+ * Strict DC base: exactly preserves original roll probabilities.
+ * Fully compensates for the "ties go to the roller" inversion.
+ */
+export const DC_BASE_STRICT = 12;
+
+/** Module-level DC base — set once during the `ready` hook. */
+let _dcBase: number = DC_BASE_DEFAULT;
+
+/**
+ * Set the DC base for all modifier → DC conversions.
+ * Call this during initialization based on the user's setting.
+ */
+export function setDCBase(base: number): void {
+    _dcBase = base;
+}
+
+/** Return the current DC base (11 or 12). */
+export function getDCBase(): number {
+    return _dcBase;
+}
+
+// ─── Modifier ↔ DC conversions ───────────────────────────────────────────────
 
 /**
  * Derive a DC from a modifier.
- * Formula: DC = 10 + modifier
+ * Formula: DC = dcBase + modifier  (dcBase is 11 by default, 12 in strict mode)
  */
 export function toDC(modifier: number): number {
-    return 10 + modifier;
+    return _dcBase + modifier;
 }
 
-/** Alias for readability: Attack DC = 10 + attack modifier */
+/** Alias for readability: Attack DC = dcBase + attack modifier */
 export const getAttackDC = toDC;
 
-/** Alias for readability: Save DC = 10 + save modifier */
+/** Alias for readability: Save DC = dcBase + save modifier */
 export const getSaveDC = toDC;
 
 // ─── PC-side modifier derivation (pure) ──────────────────────────────────────
