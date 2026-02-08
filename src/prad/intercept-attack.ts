@@ -111,9 +111,11 @@ function _onPreCreateChatMessage(
     // Only intercept attacks against PCs (characters), not NPC vs NPC
     if ((targetActor.type as string) !== "character") return;
 
-    // Extract the NPC's attack modifier from the striking item
+    // Extract the NPC's attack modifier and weapon item from the striking item
     const originItemId = flags.origin?.item ?? context.origin?.item;
     let attackModifier = 0;
+    let weaponName = "Strike";
+    let weaponItem: Item.Implementation | undefined;
 
     if (originItemId) {
         const itemId =
@@ -122,6 +124,8 @@ function _onPreCreateChatMessage(
                 : originItemId;
         const strikeItem = attacker.items.get(itemId);
         if (strikeItem) {
+            weaponItem = strikeItem;
+            weaponName = strikeItem.name ?? "Strike";
             attackModifier = getAttackModifierFromStrike(strikeItem);
         }
     }
@@ -142,17 +146,6 @@ function _onPreCreateChatMessage(
         }
     }
 
-    // Get the weapon/strike name for display
-    let weaponName = "Strike";
-    if (originItemId) {
-        const itemId =
-            typeof originItemId === "string" && originItemId.includes(".")
-                ? originItemId.split(".").pop()!
-                : originItemId;
-        const strikeItem = attacker.items.get(itemId);
-        if (strikeItem) weaponName = strikeItem.name ?? "Strike";
-    }
-
     const attackDC = getAttackDC(attackModifier);
 
     console.log(
@@ -165,6 +158,7 @@ function _onPreCreateChatMessage(
         weaponName,
         attackDC,
         attackerTokenId: message.speaker?.token ?? undefined,
+        weaponItem,
     });
 
     // Cancel the original NPC attack message
@@ -178,14 +172,167 @@ interface AttackCardParams {
     weaponName: string;
     attackDC: number;
     attackerTokenId?: string;
+    /** The NPC's melee/ranged weapon item, used to enrich the card with traits, range, damage. */
+    weaponItem?: Item.Implementation;
+}
+
+// ─── Weapon Data Extraction ──────────────────────────────────────────────────
+
+interface DamageRollEntry {
+    formula: string;
+    damageType: string;
+}
+
+interface WeaponDisplayData {
+    weaponImg: string;
+    actionGlyph: string;
+    typeLabel: string;
+    traits: Array<{ slug: string; label: string }>;
+    hasTraits: boolean;
+    rangeLabel: string;
+    hasRange: boolean;
+    areaLabel: string;
+    hasArea: boolean;
+    hasRangeOrArea: boolean;
+    damageFormula: string;
+    hasDamage: boolean;
+    hasDetails: boolean;
+    damageRolls: DamageRollEntry[];
+    weaponItemId: string;
+}
+
+/**
+ * Extract display-friendly weapon data from an NPC melee/ranged item.
+ */
+function extractWeaponData(weaponItem: Item.Implementation): WeaponDisplayData {
+    const sys = weaponItem.system as Record<string, unknown>;
+
+    // Image
+    const weaponImg = (weaponItem as unknown as { img?: string }).img ?? "icons/svg/sword.svg";
+
+    // Action glyph: strikes are 1 action, area-fire is 2 actions
+    const action = (sys.action as string) ?? "strike";
+    const actionGlyph = action === "area-fire" ? "2" : "1";
+
+    // Type label (shown where "Spell 3" appears on spell cards)
+    const range = sys.range as { increment?: number; max?: number | null } | null;
+    let typeLabel: string;
+    if (action === "area-fire") {
+        typeLabel = "Area Attack";
+    } else if (range?.increment) {
+        typeLabel = "Ranged Strike";
+    } else {
+        typeLabel = "Melee Strike";
+    }
+
+    // ── Damage rolls (extracted first so damage types can feed into traits) ──
+    const damageRollsObj = (sys.damageRolls as Record<string, { damage?: string; damageType?: string }>) ?? {};
+    const damageRolls: DamageRollEntry[] = [];
+    for (const key of Object.keys(damageRollsObj)) {
+        const dr = damageRollsObj[key];
+        if (dr?.damage) {
+            damageRolls.push({
+                formula: dr.damage,
+                damageType: dr.damageType ?? "untyped",
+            });
+        }
+    }
+    const hasDamage = damageRolls.length > 0;
+
+    // ── Traits (enriched: attack + weapon traits + damage types + range) ──
+    const traitValues: string[] = ((sys.traits as Record<string, unknown>)?.value as string[]) ?? [];
+
+    // Deduplicate by slug
+    const seenSlugs = new Set<string>();
+    const traits: Array<{ slug: string; label: string }> = [];
+    const addTrait = (slug: string, label: string): void => {
+        const key = slug.toLowerCase();
+        if (!seenSlugs.has(key)) {
+            seenSlugs.add(key);
+            traits.push({ slug: key, label });
+        }
+    };
+
+    // 1. "Attack" — every strike has this trait
+    addTrait("attack", "Attack");
+
+    // 2. Weapon traits from item data (e.g. "sonic", "volley 30 ft.")
+    for (const t of traitValues) {
+        addTrait(t, t.charAt(0).toUpperCase() + t.slice(1));
+    }
+
+    // 3. Damage-type traits (e.g. "piercing", "bludgeoning")
+    for (const dr of damageRolls) {
+        addTrait(dr.damageType, dr.damageType.charAt(0).toUpperCase() + dr.damageType.slice(1));
+    }
+
+    // 4. Range increment tag (matches what PF2e damage rolls show)
+    if (range?.increment) {
+        addTrait("range-increment", `Range Increment ${range.increment} ft.`);
+    }
+
+    const hasTraits = traits.length > 0;
+
+    // ── Range / Area (for card-content section) ──────────────────────────
+    let rangeLabel = "";
+    let hasRange = false;
+    if (range?.increment) {
+        rangeLabel = `${range.increment} feet`;
+        if (range.max) rangeLabel += ` (${range.max} ft. max)`;
+        hasRange = true;
+    } else if (range?.max) {
+        rangeLabel = `${range.max} feet`;
+        hasRange = true;
+    }
+
+    const area = sys.area as { type?: string; value?: number } | null;
+    let areaLabel = "";
+    let hasArea = false;
+    if (area?.type && area?.value) {
+        areaLabel = `${area.value}-foot ${area.type}`;
+        hasArea = true;
+    }
+
+    const hasRangeOrArea = hasRange || hasArea;
+
+    // ── Damage formula display ───────────────────────────────────────────
+    let damageFormula = "";
+    if (hasDamage) {
+        const parts = damageRolls.map((d) => `${d.formula} ${d.damageType}`);
+        damageFormula = `<strong>Damage</strong> ${parts.join(" plus ")}`;
+    }
+
+    const hasDetails = hasRangeOrArea || hasDamage;
+
+    return {
+        weaponImg,
+        actionGlyph,
+        typeLabel,
+        traits,
+        hasTraits,
+        rangeLabel,
+        hasRange,
+        areaLabel,
+        hasArea,
+        hasRangeOrArea,
+        damageFormula,
+        hasDamage,
+        hasDetails,
+        damageRolls,
+        weaponItemId: weaponItem.id ?? "",
+    };
 }
 
 /**
  * Post a chat card that shows the NPC attack and provides an "Armor Save"
  * button for the player to click — identical in concept to a spell save button.
+ *
+ * When a `weaponItem` is provided the card is enriched with traits, range,
+ * damage formulas, and a "Roll Damage" button, matching the PF2e spell card
+ * format.
  */
 export async function postAttackCard(params: AttackCardParams): Promise<void> {
-    const { attacker, weaponName, attackDC, attackerTokenId } = params;
+    const { attacker, weaponName, attackDC, attackerTokenId, weaponItem } = params;
 
     try {
         _pradRollInProgress = true;
@@ -196,14 +343,31 @@ export async function postAttackCard(params: AttackCardParams): Promise<void> {
         }).replace(/<dc>(.*?)<\/dc>/, '<span data-visibility="all">$1</span>');
 
         const sf2eAttacker = attacker as Sf2eActor;
+
+        // Extract enriched weapon data when the item is available
+        const wd = weaponItem ? extractWeaponData(weaponItem) : null;
+
         const templateData = {
             attackerId: attacker.id,
             attackerTokenId: attackerTokenId ?? "",
-            attackerName: attacker.name ?? "Unknown",
-            attackerImg: sf2eAttacker.img ?? "icons/svg/mystery-man.svg",
             weaponName,
             attackDC,
             saveLabel,
+
+            // Enriched weapon fields (fall back to sensible defaults)
+            weaponImg: wd?.weaponImg ?? sf2eAttacker.img ?? "icons/svg/mystery-man.svg",
+            actionGlyph: wd?.actionGlyph ?? "",
+            typeLabel: wd?.typeLabel ?? "Strike",
+            hasTraits: wd?.hasTraits ?? false,
+            traits: wd?.traits ?? [],
+            hasDetails: wd?.hasDetails ?? false,
+            hasRange: wd?.hasRange ?? false,
+            rangeLabel: wd?.rangeLabel ?? "",
+            hasArea: wd?.hasArea ?? false,
+            areaLabel: wd?.areaLabel ?? "",
+            hasRangeOrArea: wd?.hasRangeOrArea ?? false,
+            hasDamage: wd?.hasDamage ?? false,
+            damageFormula: wd?.damageFormula ?? "",
         };
 
         const content = await foundry.applications.handlebars.renderTemplate(TEMPLATE_ATTACK_CARD, templateData);
@@ -233,6 +397,8 @@ export async function postAttackCard(params: AttackCardParams): Promise<void> {
                     attackDC,
                     weaponName,
                     attackerId: attacker.id,
+                    weaponItemId: wd?.weaponItemId ?? "",
+                    damageRolls: wd?.damageRolls ?? [],
                     // Target Helper integration: store targets + save data
                     targetHelper: {
                         type: "prad-attack",
@@ -257,12 +423,11 @@ export async function postAttackCard(params: AttackCardParams): Promise<void> {
 // ─── renderChatMessage: listen for Armor Save button clicks ──────────────────
 
 /**
- * When a PRAD attack card is rendered, attach a click listener to the
- * "Armor Save" button. When the player clicks it, roll their active
- * tokens' armor saves — exactly like the PF2e spell-save flow.
+ * When a PRAD attack card is rendered, attach click listeners to both the
+ * "Armor Save" button and the "Roll Damage" button.
  */
 function onRenderAttackCard(
-    _message: ChatMessage.Implementation,
+    message: ChatMessage.Implementation,
     html: JQuery<HTMLElement> | HTMLElement,
     _data: object,
 ): void {
@@ -270,27 +435,97 @@ function onRenderAttackCard(
         const root = resolveHtmlRoot(html);
         if (!root) return;
 
+        // ── Armor Save button ────────────────────────────────────────────
         const saveBtn = root.querySelector<HTMLButtonElement>('button[data-action="prad-armor-save"]');
-        if (!saveBtn) return;
+        if (saveBtn && !saveBtn.dataset.pradBound) {
+            saveBtn.dataset.pradBound = "true";
 
-        // Guard against duplicate event listeners on re-render
-        if (saveBtn.dataset.pradBound) return;
-        saveBtn.dataset.pradBound = "true";
+            saveBtn.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
 
-        saveBtn.addEventListener("click", (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
+                const dc = Number(saveBtn.dataset.dc);
+                const weaponLabel = saveBtn.dataset.weapon ?? "Strike";
+                const attackerId = saveBtn.dataset.attackerId ?? "";
+                const attacker = attackerId ? game.actors!.get(attackerId) : undefined;
 
-            const dc = Number(saveBtn.dataset.dc);
-            const weaponLabel = saveBtn.dataset.weapon ?? "Strike";
-            const attackerId = saveBtn.dataset.attackerId ?? "";
-            const attacker = attackerId ? game.actors!.get(attackerId) : undefined;
+                rollArmorSavesForActiveTokens(dc, weaponLabel, attacker ?? undefined);
+            });
+        }
 
-            rollArmorSavesForActiveTokens(dc, weaponLabel, attacker ?? undefined);
-        });
+        // ── Roll Damage button ───────────────────────────────────────────
+        const dmgBtn = root.querySelector<HTMLButtonElement>('button[data-action="prad-roll-damage"]');
+        if (dmgBtn && !dmgBtn.dataset.pradBound) {
+            dmgBtn.dataset.pradBound = "true";
+
+            dmgBtn.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                rollWeaponDamage(message);
+            });
+        }
     } catch (err) {
         console.error(`${MODULE_ID} | PRAD: Error in renderChatMessage hook`, err);
     }
+}
+
+// ─── Weapon Damage Roll (triggered by Roll Damage click) ─────────────────────
+
+/**
+ * Roll the NPC weapon's damage from data stored in the chat message flags.
+ *
+ * Tries the system's native strike-damage pipeline first (which produces a
+ * proper PF2e damage card). Falls back to a manual `Roll` from the stored
+ * formulas if the system path is unavailable.
+ */
+async function rollWeaponDamage(message: ChatMessage.Implementation): Promise<void> {
+    const moduleFlags = (message.flags as Record<string, Record<string, unknown>> | undefined)?.[MODULE_ID];
+    if (!moduleFlags) return;
+
+    const attackerId = moduleFlags.attackerId as string | undefined;
+    const weaponItemId = moduleFlags.weaponItemId as string | undefined;
+    const weaponName = (moduleFlags.weaponName as string) ?? "Strike";
+
+    // ── Try system-native damage via the actor's strike actions ───────
+    if (attackerId && weaponItemId) {
+        const attacker = game.actors!.get(attackerId) as Sf2eActor | undefined;
+        if (attacker) {
+            const sys = attacker.system as Record<string, unknown>;
+            const actions = sys.actions as Array<{ item?: { id?: string }; damage?: (opts: object) => Promise<unknown> }> | undefined;
+            if (Array.isArray(actions)) {
+                const strike = actions.find((a) => a.item?.id === weaponItemId);
+                if (strike?.damage) {
+                    try {
+                        await strike.damage({ event: new MouseEvent("click") });
+                        return;
+                    } catch (err) {
+                        console.warn(`${MODULE_ID} | PRAD: System damage roll failed, using fallback`, err);
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Fallback: manual roll from stored damage formulas ─────────────
+    const damageRolls = moduleFlags.damageRolls as DamageRollEntry[] | undefined;
+    if (!damageRolls?.length) {
+        ui.notifications!.warn("No damage data available for this attack.");
+        return;
+    }
+
+    const formula = damageRolls.map((d) => d.formula).join(" + ");
+    const roll = new Roll(formula);
+    await roll.evaluate();
+
+    const damageTypes = [...new Set(damageRolls.map((d) => d.damageType))].join(", ");
+
+    await roll.toMessage({
+        speaker: {
+            actor: attackerId ?? undefined,
+            alias: game.actors!.get(attackerId ?? "")?.name ?? "NPC",
+        },
+        flavor: `<strong>${weaponName}</strong> Damage (${damageTypes})`,
+    } as Record<string, unknown>);
 }
 
 // ─── Armor Save Roll (triggered by player click) ────────────────────────────

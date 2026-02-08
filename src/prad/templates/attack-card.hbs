@@ -1,11 +1,42 @@
-<div class="pf2e chat-card prad-attack-card"
+<div class="pf2e chat-card item-card prad-attack-card"
     data-attacker-id="{{attackerId}}"
     data-attacker-token-id="{{attackerTokenId}}"
 >
     <header class="card-header flexrow">
-        <img src="{{attackerImg}}" alt="{{attackerName}}" />
-        <h3>{{attackerName}}: {{weaponName}}</h3>
+        <img src="{{weaponImg}}" alt="{{weaponName}}" />
+        <h3>{{weaponName}}{{#if actionGlyph}} <span class="action-glyph">{{actionGlyph}}</span>{{/if}}</h3>
+        <h4 class="rank">{{typeLabel}}</h4>
+        <section class="tags paizo-style" data-tooltip-class="pf2e">
+            {{#each traits}}
+                <span class="tag" data-trait="{{this.slug}}">{{this.label}}</span>
+            {{/each}}
+        </section>
     </header>
+
+    {{#if hasDetails}}
+    <section class="card-content">
+        {{#if hasRangeOrArea}}
+        <p class="item-block-line">
+            {{#if hasRange}}
+            <span>
+                <strong>Range</strong>
+                {{rangeLabel}}{{#if hasArea}};{{/if}}
+            </span>
+            {{/if}}
+            {{#if hasArea}}
+            <span>
+                <strong>Area</strong>
+                {{areaLabel}}
+            </span>
+            {{/if}}
+        </p>
+        {{/if}}
+        {{#if damageFormula}}
+        <hr class="item-block-divider">
+        <p>{{{damageFormula}}}</p>
+        {{/if}}
+    </section>
+    {{/if}}
 
     <section class="card-buttons">
         <button type="button"
@@ -16,5 +47,12 @@
         >
             {{{saveLabel}}}
         </button>
+        {{#if hasDamage}}
+        <section class="owner-buttons">
+            <div class="spell-button">
+                <button type="button" data-action="prad-roll-damage">Roll Damage</button>
+            </div>
+        </section>
+        {{/if}}
     </section>
 </div>

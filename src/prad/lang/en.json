@@ -28,6 +28,7 @@
             "resultSuccess": "Success",
             "resultFailure": "Failure",
             "resultCriticalFailure": "Critical Failure",
+            "rollDamage": "Roll Damage",
             "npcAttackIntercepted": "Attack intercepted — player rolls armor save",
             "npcSaveIntercepted": "Save intercepted — player rolls overcome check",
             "targetEffect": {

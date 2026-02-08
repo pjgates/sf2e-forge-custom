@@ -195,6 +195,28 @@
     }
 }
 
+// ─── PRAD Save DC Labels (injected below NPC save modifiers) ─────────────────
+
+// The system sets a fixed height: 2.5rem on save <li> elements.
+// Override to min-height so our badge fits without overlapping.
+.saves li.prad-modified {
+    height: auto !important;
+    min-height: 2.5rem;
+}
+
+.prad-save-dc-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--prad-dc-badge-text, #e0e8f0);
+    background: var(--prad-dc-badge-bg, rgba(255, 255, 255, 0.06));
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-top: 1px;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
 // ─── PRAD DC Badges (injected into NPC sheets) ──────────────────────────────
 
 .prad-dc-badge {

@@ -6,7 +6,6 @@
  * reference for the DCs players will roll against.
  */
 
-import { MODULE_ID } from "../constants.js";
 import { getAttackDC, getAttackModifierFromStrike, getSaveDC, getSaveModifier, toDC } from "./dc.js";
 import { postAttackCard } from "./intercept-attack.js";
 import { SAVE_TYPES } from "./types.js";
@@ -36,39 +35,37 @@ export function onRenderNpcSheet(
     injectAttackDCs(root, actor);
 }
 
-// ─── Save DC Replacement ─────────────────────────────────────────────────────
+// ─── Save DC Labels ─────────────────────────────────────────────────────────
 
 /**
- * Replace save modifiers on the NPC sheet with Save DCs.
- * Changes "+14" to "DC 24" etc.
+ * Inject Save DC labels below each save modifier on the NPC sheet.
+ * Leaves the original modifier input untouched (avoids Foundry data-binding
+ * conflicts) and adds a small "DC XX" badge beneath it.
  */
 function injectSaveDCs(root: HTMLElement, actor: Actor.Implementation): void {
     for (const saveType of SAVE_TYPES) {
         const saveMod = getSaveModifier(actor, saveType as SaveType);
         const saveDCValue = getSaveDC(saveMod);
 
-        // Try multiple selectors that SF2e/PF2e might use for saves
         const selectors = [
             `[data-statistic="${saveType}"]`,
             `[data-slug="${saveType}"]`,
-            `.save.${saveType}`,
-            `.saves .${saveType}`,
         ];
 
         for (const selector of selectors) {
             const elements = root.querySelectorAll<HTMLElement>(selector);
             for (const el of elements) {
-                // Don't modify twice
-                if (el.classList.contains("prad-modified")) continue;
-                el.classList.add("prad-modified");
+                const container = el.closest("li") ?? el.parentElement;
+                if (!container) continue;
 
-                // Find and replace the modifier value
-                // SF2e typically shows saves like "+14" - replace with "DC 24"
-                const valueEl = el.querySelector<HTMLElement>('.value, .modifier, [data-value]');
-                if (valueEl) {
-                    valueEl.textContent = `DC ${saveDCValue}`;
-                    valueEl.classList.add("prad-dc-value");
-                }
+                if (container.classList.contains("prad-modified")) continue;
+                container.classList.add("prad-modified");
+
+                // Create a small DC badge and append it to the container
+                const dcBadge = document.createElement("div");
+                dcBadge.className = "prad-save-dc-label";
+                dcBadge.textContent = `DC ${saveDCValue}`;
+                container.appendChild(dcBadge);
             }
         }
     }
@@ -137,12 +134,13 @@ function injectAttackDCs(root: HTMLElement, actor: Actor.Implementation): void {
                     const capturedDC = dc;
                     const capturedWeaponName = weaponName;
                     const capturedAttacker = actor;
+                    const capturedWeaponItem = strike;
 
                     btn.addEventListener("click", (ev) => {
                         ev.preventDefault();
                         ev.stopImmediatePropagation();
 
-                        onStrikeDCClick(capturedAttacker, capturedWeaponName, capturedDC);
+                        onStrikeDCClick(capturedAttacker, capturedWeaponName, capturedDC, capturedWeaponItem);
                     }, { capture: true });
                 }
 
@@ -166,7 +164,8 @@ function injectAttackDCs(root: HTMLElement, actor: Actor.Implementation): void {
 function onStrikeDCClick(
     attacker: Actor.Implementation,
     weaponName: string,
-    attackDC: number
+    attackDC: number,
+    weaponItem?: Item.Implementation,
 ): void {
-    postAttackCard({ attacker, weaponName, attackDC });
+    postAttackCard({ attacker, weaponName, attackDC, weaponItem });
 }
