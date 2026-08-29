@@ -5,6 +5,7 @@ import {
     getAllTags,
 } from "obsidian";
 import { parseCampaigns, type CampaignRef } from "./core/campaign.js";
+import { isActiveCharacterPath } from "./core/entityPath.js";
 import type { EntityRecord } from "./core/roster.js";
 
 type ChangeHandler = () => void;
@@ -143,7 +144,7 @@ export function buildEntityRecord(
     cache: CachedMetadata | null,
 ): EntityRecord | null {
     const frontmatter = cache?.frontmatter;
-    if (!frontmatter || frontmatter.type !== "Character") {
+    if (!isActiveCharacterPath(path) || !frontmatter || frontmatter.type !== "Character") {
         return null;
     }
 

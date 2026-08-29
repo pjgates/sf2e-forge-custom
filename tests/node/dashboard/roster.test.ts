@@ -4,6 +4,7 @@ import {
     sortRoster,
     type EntityRecord,
 } from "../../../plugin/src/core/roster.js";
+import { isActiveCharacterPath } from "../../../plugin/src/core/entityPath.js";
 
 const records: EntityRecord[] = [
     {
@@ -98,6 +99,14 @@ describe("filterRoster", () => {
                 (r) => r.name,
             ),
         ).toEqual(["Wren Kadau", "Valor"]);
+    });
+
+    it("keeps live nullable metadata without borrowing its archived duplicate", () => {
+        const archived = { ...records[0], path: "codex/the-forge/archive/randall.md" };
+        const current = { ...records[0], depth: null, status: null };
+        const active = [archived, current].filter((record) => isActiveCharacterPath(record.path));
+        expect(filterRoster(active, { campaignKey: "the-forge" })).toEqual([current]);
+        expect(filterRoster(active, { campaignKey: "the-forge", depths: [2] })).toEqual([]);
     });
 
     it("matches case-insensitive substrings against name and aliases", () => {
