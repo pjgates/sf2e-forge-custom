@@ -1,7 +1,7 @@
 import {
     type App,
     type MarkdownPostProcessorContext,
-    Component,
+    MarkdownRenderChild,
     MarkdownView,
     Plugin,
     TFile,
@@ -57,6 +57,9 @@ export function registerNoteCardPostProcessor(
         const host = element.createDiv({ cls: CARD_HOST_CLASS });
         element.insertAdjacentElement("afterbegin", host);
 
+        const owner = new MarkdownRenderChild(host);
+        ctx.addChild(owner);
+
         const cardCtx: CardRenderContext = {
             app: plugin.app,
             file,
@@ -66,8 +69,8 @@ export function registerNoteCardPostProcessor(
                 excludeTags: options.settings.excludeTags,
                 descriptionLines: options.settings.descriptionLines,
             },
-            addChild: (child) => ctx.addChild(child),
-            removeChild: (child) => (ctx as unknown as Component).removeChild(child),
+            addChild: (child) => { owner.addChild(child); },
+            removeChild: (child) => { owner.removeChild(child); },
         };
 
         // renderCard treats a disconnected host as stale — defer until Obsidian
