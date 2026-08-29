@@ -86,4 +86,18 @@ GM body
             gmSectionCount: 1,
         });
     });
+
+    it("strips a leading portrait before the character heading", () => {
+        const note = [
+            "---", "type: Character", "---", "",
+            "![[sorrowbalm.webp|portrait]]", "", "# Sorrowbalm", "",
+            "An honest player-facing description.", "",
+            "%%Secret%%", "", "## GM Notes", "Private detail.",
+        ].join("\n");
+        expect(splitSecret(note)).toEqual({
+            description: "An honest player-facing description.",
+            secret: "## GM Notes\nPrivate detail.",
+            gmSectionCount: 1,
+        });
+    });
 });

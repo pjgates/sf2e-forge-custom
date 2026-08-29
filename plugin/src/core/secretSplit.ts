@@ -10,9 +10,7 @@ const PORTRAIT_EMBED_RE = /^!\[\[[^\]]+\]\]\s*$/;
 const H1_RE = /^#\s+.+/;
 
 export function splitSecret(fileText: string): SecretSplit {
-    let body = stripFrontmatter(fileText);
-    body = stripLeadingH1(body);
-    body = stripLeadingPortraitEmbed(body);
+    const body = stripLeadingNoteChrome(stripFrontmatter(fileText));
 
     const { playerBody, secretBody } = splitOnMarker(body);
 
@@ -27,22 +25,15 @@ function stripFrontmatter(fileText: string): string {
     return fileText.replace(FRONTMATTER_RE, "");
 }
 
-function stripLeadingH1(body: string): string {
+function stripLeadingNoteChrome(body: string): string {
     const lines = body.split(/\r?\n/);
-    while (lines.length > 0 && lines[0].trim() === "") lines.shift();
-    if (lines.length > 0 && H1_RE.test(lines[0].trim())) {
-        lines.shift();
-        while (lines.length > 0 && lines[0].trim() === "") lines.shift();
-    }
-    return lines.join("\n");
-}
-
-function stripLeadingPortraitEmbed(body: string): string {
-    const lines = body.split(/\r?\n/);
-    while (lines.length > 0 && lines[0].trim() === "") lines.shift();
-    if (lines.length > 0 && PORTRAIT_EMBED_RE.test(lines[0].trim())) {
-        lines.shift();
-        while (lines.length > 0 && lines[0].trim() === "") lines.shift();
+    while (lines.length > 0) {
+        const line = lines[0].trim();
+        if (line === "" || H1_RE.test(line) || PORTRAIT_EMBED_RE.test(line)) {
+            lines.shift();
+            continue;
+        }
+        break;
     }
     return lines.join("\n");
 }
