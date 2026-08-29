@@ -5,8 +5,9 @@ import {
     WorkspaceLeaf,
     type MarkdownRenderChild,
 } from "obsidian";
-import { renderCard, resolvePortraitTarget, type CardRenderContext } from "./card.js";
+import { renderCard, type CardRenderContext } from "./card.js";
 import { parseCampaigns, slugToLabel, type CampaignRef } from "./core/campaign.js";
+import { normalizePortraitTarget } from "./core/portrait.js";
 import {
     filterRoster,
     sortRoster,
@@ -422,7 +423,7 @@ export class CodexDashboardView extends ItemView {
     }
 
     private renderThumb(thumbEl: HTMLElement, record: EntityRecord): void {
-        const portraitTarget = resolvePortraitTarget(record.portrait);
+        const portraitTarget = normalizePortraitTarget(record.portrait);
         if (portraitTarget) {
             const dest = this.app.metadataCache.getFirstLinkpathDest(portraitTarget, record.path);
             if (dest) {
@@ -445,7 +446,7 @@ export class CodexDashboardView extends ItemView {
     }
 
     private renderDetailPortrait(portraitEl: HTMLElement, record: EntityRecord): void {
-        const portraitTarget = resolvePortraitTarget(record.portrait);
+        const portraitTarget = normalizePortraitTarget(record.portrait);
         if (portraitTarget) {
             const dest = this.app.metadataCache.getFirstLinkpathDest(portraitTarget, record.path);
             if (dest) {
@@ -529,4 +530,3 @@ function detailCampaignLabel(record: EntityRecord, campaignKey: string | null): 
 
     return record.campaigns[0]?.label ?? "All campaigns";
 }
-

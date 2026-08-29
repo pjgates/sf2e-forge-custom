@@ -6,11 +6,10 @@ import {
 } from "obsidian";
 import { parseCampaigns, type CampaignRef } from "./core/campaign.js";
 import { isActiveCharacterPath } from "./core/entityPath.js";
+import { normalizePortraitTarget } from "./core/portrait.js";
 import type { EntityRecord } from "./core/roster.js";
 
 type ChangeHandler = () => void;
-
-const PORTRAIT_WIKILINK_RE = /^\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]$/;
 
 // Index-side depth/status null semantics are covered by roster tests (Decision 5: no mocked-App tests).
 // Missing, empty, or non-integer depth → null (note stays indexed). Missing status → null.
@@ -148,7 +147,7 @@ export function buildEntityRecord(
         return null;
     }
 
-    const portrait = parsePortrait(frontmatter.portrait);
+    const portrait = normalizePortraitTarget(frontmatter.portrait);
 
     return {
         path,
@@ -178,17 +177,6 @@ function collectTags(cache: CachedMetadata): string[] {
     }
 
     return tags;
-}
-
-function parsePortrait(value: unknown): string | undefined {
-    if (typeof value !== "string" || value.trim().length === 0) {
-        return undefined;
-    }
-
-    const trimmed = value.trim();
-    const match = PORTRAIT_WIKILINK_RE.exec(trimmed);
-    const target = (match?.[1] ?? trimmed).trim();
-    return target.length > 0 ? target : undefined;
 }
 
 function parseDepth(value: unknown): number | null {

@@ -6,6 +6,7 @@ import {
     setIcon,
 } from "obsidian";
 import { clampDescriptionLines, type CardSettings } from "./defaults.js";
+import { normalizePortraitTarget } from "./core/portrait.js";
 import { splitSecret } from "./core/secretSplit.js";
 import type { EntityRecord } from "./core/roster.js";
 import type { RevealState } from "./revealState.js";
@@ -23,8 +24,6 @@ export interface CardRenderContext {
 }
 
 const CARD_CLASS = "codex-dashboard-card";
-const PORTRAIT_WIKILINK_RE = /^\[\[([^\]|]+?)(?:\|[^\]]*)?\]\]$/;
-
 interface CardRuntimeState {
     generation: number;
     secretChild: MarkdownRenderChild | null;
@@ -208,7 +207,7 @@ export async function renderCard(
 }
 
 function renderPortrait(portraitEl: HTMLElement, record: EntityRecord, ctx: CardRenderContext): void {
-    const portraitTarget = resolvePortraitTarget(record.portrait);
+    const portraitTarget = normalizePortraitTarget(record.portrait);
     if (portraitTarget) {
         const dest = ctx.app.metadataCache.getFirstLinkpathDest(portraitTarget, ctx.sourcePath);
         if (dest) {
@@ -226,17 +225,6 @@ function renderPortrait(portraitEl: HTMLElement, record: EntityRecord, ctx: Card
 
     const fallback = portraitEl.createDiv({ cls: `${CARD_CLASS}__portrait-fallback` });
     fallback.setText("⚔");
-}
-
-export function resolvePortraitTarget(portrait: string | undefined): string | undefined {
-    if (!portrait) {
-        return undefined;
-    }
-
-    const trimmed = portrait.trim();
-    const match = PORTRAIT_WIKILINK_RE.exec(trimmed);
-    const target = (match?.[1] ?? trimmed).trim();
-    return target.length > 0 ? target : undefined;
 }
 
 function renderChips(bodyEl: HTMLElement, record: EntityRecord, excludeTags: string[]): void {
