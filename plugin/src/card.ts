@@ -19,7 +19,6 @@ export interface CardRenderContext {
     settings: Pick<CardSettings, "excludeTags" | "descriptionLines">;
     addChild: (child: MarkdownRenderChild) => void;
     removeChild: (child: MarkdownRenderChild) => void;
-    onRevealChange?: () => void;
     suppressPortrait?: boolean;
 }
 
@@ -131,7 +130,9 @@ export async function renderCard(
     ctx.addChild(descChild);
     await MarkdownRenderer.renderMarkdown(split.description, descEl, ctx.sourcePath, descChild);
     if (isCardRenderStale(el, generation)) {
-        unloadDescRenderChild(el, ctx);
+        if (getCardRuntime(el).descChild === descChild) {
+            unloadDescRenderChild(el, ctx);
+        }
         return;
     }
 
@@ -299,7 +300,9 @@ async function renderSecretBlock(
 
     await MarkdownRenderer.renderMarkdown(secretMarkdown, bodyEl, ctx.sourcePath, renderChild);
     if (isCardRenderStale(cardEl, generation)) {
-        unloadSecretRenderChild(cardEl, ctx);
+        if (getCardRuntime(cardEl).secretChild === renderChild) {
+            unloadSecretRenderChild(cardEl, ctx);
+        }
         return;
     }
 

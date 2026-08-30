@@ -38,6 +38,7 @@ interface ViewUi {
 export class CodexDashboardView extends ItemView {
     private ui: ViewUi | null = null;
     private unsubscribeIndex: (() => void) | null = null;
+    private unsubscribeReveal: (() => void) | null = null;
     private cardChildren: MarkdownRenderChild[] = [];
 
     private searchQuery = "";
@@ -82,6 +83,8 @@ export class CodexDashboardView extends ItemView {
     async onClose(): Promise<void> {
         this.unsubscribeIndex?.();
         this.unsubscribeIndex = null;
+        this.unsubscribeReveal?.();
+        this.unsubscribeReveal = null;
         this.clearCardChildren();
         this.ui = null;
     }
@@ -341,6 +344,11 @@ export class CodexDashboardView extends ItemView {
             return;
         }
 
+        this.unsubscribeReveal?.();
+        this.unsubscribeReveal = this.plugin.revealState.subscribe(record.path, () => {
+            if (this.selectedPath === record.path) void this.renderDetail(record);
+        });
+
         const file = this.app.vault.getAbstractFileByPath(record.path);
         if (!(file instanceof TFile)) {
             this.selectedPath = null;
@@ -389,9 +397,6 @@ export class CodexDashboardView extends ItemView {
                 this.cardChildren = this.cardChildren.filter((entry) => entry !== child);
                 this.removeChild(child);
             },
-            onRevealChange: () => {
-                void this.renderDetail(record);
-            },
             suppressPortrait: true,
         };
 
@@ -414,6 +419,8 @@ export class CodexDashboardView extends ItemView {
     }
 
     private showListView(): void {
+        this.unsubscribeReveal?.();
+        this.unsubscribeReveal = null;
         this.syncControlsFromState();
         this.renderList();
     }

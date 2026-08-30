@@ -73,6 +73,16 @@ export function registerNoteCardPostProcessor(
             removeChild: (child) => { owner.removeChild(child); },
         };
 
+        const renderCurrentCard = (): void => {
+            void renderCard(host, record, cardCtx).catch((error: unknown) => {
+                console.error("codex-dashboard: renderCard threw", ctx.sourcePath, error);
+            });
+        };
+        const unsubscribe = options.revealState.subscribe(ctx.sourcePath, () => {
+            if (host.isConnected) renderCurrentCard();
+        });
+        owner.register(unsubscribe);
+
         // renderCard treats a disconnected host as stale — defer until Obsidian
         // has attached the chunk; the isConnected check also covers host
         // removal (settings refresh) racing the deferred render.
@@ -81,9 +91,7 @@ export function registerNoteCardPostProcessor(
                 console.error("codex-dashboard: card host never attached", ctx.sourcePath);
                 return;
             }
-            renderCard(host, record, cardCtx).catch((error: unknown) => {
-                console.error("codex-dashboard: renderCard threw", ctx.sourcePath, error);
-            });
+            renderCurrentCard();
         }, 0);
     });
 }
