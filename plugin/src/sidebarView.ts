@@ -75,9 +75,15 @@ export class CodexDashboardView extends ItemView {
         });
 
         this.ui = this.buildUi(this.contentEl);
-        this.initializeCampaignDefault();
-        this.syncControlsFromState();
-        this.refresh();
+        this.app.workspace.onLayoutReady(() => {
+            if (!this.ui) {
+                return;
+            }
+
+            this.initializeCampaignDefault();
+            this.syncControlsFromState();
+            this.refresh();
+        });
     }
 
     async onClose(): Promise<void> {
@@ -258,6 +264,11 @@ export class CodexDashboardView extends ItemView {
                 text: campaign.label,
                 value: campaign.key,
             });
+        }
+
+        if (campaigns.length === 0) {
+            select.value = "";
+            return;
         }
 
         const nextValue = this.campaignKey ?? "";
@@ -483,18 +494,17 @@ export class CodexDashboardView extends ItemView {
 
 export async function activateCodexDashboard(plugin: CodexDashboardPlugin): Promise<void> {
     const { workspace } = plugin.app;
-    const existing = workspace.getLeavesOfType(VIEW_TYPE_CODEX_DASHBOARD)[0];
-    if (existing) {
-        workspace.revealLeaf(existing);
-        return;
-    }
+    let leaf = workspace.getLeavesOfType(VIEW_TYPE_CODEX_DASHBOARD)[0];
 
-    const leaf = workspace.getRightLeaf(false);
     if (!leaf) {
-        return;
+        const created = workspace.getRightLeaf(false);
+        if (!created) return;
+        leaf = created;
+        await leaf.setViewState({ type: VIEW_TYPE_CODEX_DASHBOARD, active: true });
     }
 
-    await leaf.setViewState({ type: VIEW_TYPE_CODEX_DASHBOARD, active: true });
+    workspace.rightSplit.expand();
+    workspace.setActiveLeaf(leaf, { focus: true });
 }
 
 export function resolveDefaultCampaignKey(app: App): string | null {
@@ -537,3 +547,4 @@ function detailCampaignLabel(record: EntityRecord, campaignKey: string | null): 
 
     return record.campaigns[0]?.label ?? "All campaigns";
 }
+
