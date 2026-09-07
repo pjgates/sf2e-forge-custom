@@ -1,0 +1,17 @@
+import { activateTokenGeometry } from "./tokens.js";
+import { activateCover } from "./cover.js";
+import { activateAreaTargeting } from "./areas.js";
+import { activateMovementRings } from "./movement.js";
+import { activateFlankingGuide } from "./flanking.js";
+
+export { registerGridlessSetting } from "./settings.js";
+export { registerMovementPreviewKeybind } from "./movement.js";
+
+export function activateGridlessCombat(): void {
+    if (!["pf2e", "sf2e"].includes(game.system!.id)) return;
+    activateTokenGeometry();
+    activateCover();
+    activateAreaTargeting();
+    activateMovementRings();
+    activateFlankingGuide();
+}

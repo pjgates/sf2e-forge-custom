@@ -3,7 +3,7 @@
  * Main entry point for the Foundry VTT module.
  *
  * Codex bridge for Foundry VTT: vault content sync plus
- * ruleset houserules (currently Starfinder Second Edition).
+ * ruleset houserules for Pathfinder and Starfinder Second Edition.
  */
 
 import { onInit } from "./hooks/init.js";

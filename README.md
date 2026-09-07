@@ -1,6 +1,6 @@
 # Codex Bridge
 
-Obsidian↔Foundry VTT bridge: campaign content sync (**codex-sync**) plus opt-in ruleset houserules, currently for the **Starfinder Second Edition** system in [Foundry VTT](https://foundryvtt.com/).
+Obsidian↔Foundry VTT bridge: campaign content sync (**codex-sync**) plus opt-in rules for **Pathfinder Second Edition** and **Starfinder Second Edition** in [Foundry VTT](https://foundryvtt.com/).
 
 > **Renamed from `sf2e-forge-custom` in v1.0.0.** Migration steps: see [CHANGELOG](CHANGELOG.md#100).
 
@@ -31,12 +31,47 @@ Per-target save/check rows on chat cards for spells, area effects, and other tar
 - Integrates with PRAD to support overcome checks.
 - Compatible with [PF2e Toolbelt](https://github.com/reonZ/pf2e-toolbelt)'s Target Helper — when Toolbelt is active, this module only handles PRAD-specific cards.
 
+### Gridless Combat
+
+An optional setting for PF2e and SF2e gridless scenes. Gridded scenes keep their native behavior.
+
+- Distances use continuous Euclidean geometry without rounding. Large tokens retain PF2e occupied-space reach.
+- Native flanking rules remain active. A wall that blocks all five target rays also blocks flanking.
+- With one controlled creature and one target, red wedges extend from the target center to the valid flanking arc.
+- The outer arc uses native flanking checks. The interior fill indicates direction only.
+- An eligible ally must already be within reach. The guide preserves native flanking feats and excludes wall-blocked positions.
+- Automatic cover samples the target center and four corners from the attacker center. Movement-blocking walls provide the obstruction.
+- A creature across the center line provides lesser cover (+1 AC).
+- Terrain that blocks corner rays but leaves the center visible provides light cover (+1 AC).
+- Terrain that blocks the center but leaves a corner visible provides standard cover (+2 AC and area Reflex).
+- All five blocked rays prevent the attack or save. Native Take Cover effects provide greater cover without stacking circumstance bonuses.
+- Native area shapes remain continuous. Area placement selects visible targets inside the shape with at least one clear wall ray.
+- Area saves use the placed shape as their origin. If an item has multiple areas, select the relevant area before the save.
+- The remaining-Stride ring appears only for one selected token during movement or while the **Preview Movement Ring** shortcut is held.
+- Selecting multiple tokens hides movement rings, including held previews.
+- The shortcut is unassigned by default. Assign it under **Configure Controls → Codex Foundry → Preview Movement Ring**.
+- Ready attacks add colored distance overlays: filled melee-reach circles and outline-only ranged circles. They use the same movement/hold-preview visibility.
+- Ranged circles show the first range increment, or the fixed maximum when an attack has no increment.
+- Equal distances of the same kind share a circle with combined attack labels.
+- Attack overlays show the listed distances from the token center. Attack resolution still uses native target-specific rules.
+- During its turn, recorded movement costs reduce the remaining distance. Crossing a Stride limit advances to the next action increment.
+- Drag previews include the planned path. Canceling a drag restores the recorded budget, and the next turn resets movement history.
+- This is a movement-only indicator. Attacks and other non-movement actions do not consume its budget.
+- Outside the token's turn, only the current drag preview consumes the displayed allowance.
+- Ring outlines remain straight-line previews. They do not predict walls or future terrain costs.
+- Movement budgets require native history recording. PF2e Toolbelt's per-user **Better Movement → No History Record** option must be off.
+
+Automatic cover is this module's geometric approximation, not native PF2e/SF2e automation. Region outlines do not clip to walls.
+
 ## Compatibility
 
 | Requirement | Version |
 |---|---|
 | Foundry VTT | v14 |
 | SF2e System | 0.0.4+ |
+| PF2e System | 8.5.0+ |
+
+Gridless integration targets Foundry 14.367, PF2e 8.5.0, and SF2e 1.5.0.
 
 ## Installation
 
@@ -58,6 +93,7 @@ Found under **Module Settings > Codex Foundry**. All settings are world-scoped (
 | **Enable Custom Rules** | Master switch for the entire module. Requires reload. | On |
 | **Enable Target Helper** | Adds per-target rows to chat cards. Requires reload. | On |
 | **Heroic Rerolls** | Raises Hero Point d20 rerolls below 10 to 10. Requires reload. | Off |
+| **Gridless Combat** | Continuous geometry, automatic cover, area targeting, flanking guides, and remaining-movement rings. Requires reload. | Off |
 | **Players Roll All Dice** | Enables the PRAD variant. Requires Target Helper to be on. | Off |
 | **Strict DC Mode (Exact Probabilities)** | Uses DC = 12 + modifier instead of 11 + modifier under PRAD, exactly preserving original probabilities. | Off |
 | **Statblock Importer** | Adds an Import Statblock button to the Actors sidebar (GM only). | On |

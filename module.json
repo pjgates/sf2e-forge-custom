@@ -1,7 +1,7 @@
 {
   "id": "codex-foundry",
   "title": "Codex Foundry",
-  "description": "Codex bridge for Foundry VTT: vault content sync plus ruleset houserules (currently Starfinder Second Edition).",
+  "description": "Codex bridge for Foundry VTT: vault content sync plus Pathfinder and Starfinder Second Edition houserules.",
   "version": "1.0.2",
   "authors": [
     {
@@ -21,11 +21,19 @@
         "compatibility": {
           "minimum": "0.0.4"
         }
+      },
+      {
+        "id": "pf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "8.5.0"
+        }
       }
     ]
   },
   "system": [
-    "sf2e"
+    "sf2e",
+    "pf2e"
   ],
   "esmodules": [
     "dist/module.js"

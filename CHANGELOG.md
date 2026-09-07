@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Added
+
+- **Gridless Combat:** optional PF2e/SF2e support with continuous distance and reach, native flanking, center-based automatic cover, and wall-aware area targeting.
+- **Gridless guides:** center-filled flanking sectors and a turn-based remaining-movement ring with native action glyphs. Rings appear only for one selected token during movement or hold-to-preview.
+- **Attack distances:** ready melee attacks show translucent reach circles. Ranged attacks show outline-only range rings. Equal distances share labeled circles.
+- **Pathfinder compatibility:** the module manifest now permits PF2e worlds.
+
 ### Fixed
 
+- **Gridless movement:** spent distance now carries forward when the active combatant inherits its scene from the encounter.
 - **SF2e creature imports:** condition links now use compendium document IDs instead of names, fixing Dazzled, Blinded, and other linked conditions in abilities. This applies to new imports and explicit reimports; existing actors are not automatically updated.
 - **SF2e conditions:** ability descriptions now recognize Glitching with a numeric value, Suppressed, and Untethered. Existing explicit condition links are preserved.
 

@@ -9,6 +9,7 @@ import { registerPradSettings, registerPradTemplates, registerAttackCardTemplate
 import { registerHeroicRerollsSetting } from "../rulesets/sf2e/heroic-rerolls/index.js";
 import { initTargetHelper } from "../rulesets/sf2e/target-helper/index.js";
 import { initStatblockImporter, registerStatblockImporterSetting } from "../rulesets/sf2e/statblock-importer/index.js";
+import { registerGridlessSetting, registerMovementPreviewKeybind } from "../rulesets/sf2e/gridless/index.js";
 import {
     registerSyncSettings,
     registerSyncSettingsButton,
@@ -23,6 +24,8 @@ export function onInit(): void {
 
     // Register Heroic Rerolls variant setting
     registerHeroicRerollsSetting();
+    registerGridlessSetting();
+    registerMovementPreviewKeybind();
 
     // Register Vault Sync settings
     registerSyncSettings();
