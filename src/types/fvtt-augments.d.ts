@@ -19,6 +19,7 @@ declare global {
         "codex-foundry.enableStatblockImporter": boolean;
         "codex-foundry.enableTargetHelper": boolean;
         "codex-foundry.heroicRerolls": boolean;
+        "codex-foundry.gridlessCombat": boolean;
         "codex-foundry.playersRollAllDice": boolean;
         "codex-foundry.pradStrictDCs": boolean;
         "codex-foundry.enableCodexSync": boolean;

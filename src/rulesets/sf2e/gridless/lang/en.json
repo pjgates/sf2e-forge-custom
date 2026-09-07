@@ -1,0 +1,21 @@
+{
+    "codex-foundry": {
+        "settings": {
+            "gridlessCombat": {
+                "name": "Gridless Combat",
+                "hint": "Enable continuous combat geometry, automatic cover, area targeting, and movement overlays on gridless PF2e and SF2e scenes. Includes flanking and attack-distance guides. Requires reload."
+            }
+        },
+        "gridless": {
+            "movementRemaining": "{distance} {units} left",
+            "previewMovementName": "Preview Movement Ring",
+            "previewMovementHint": "Hold to preview remaining movement and ready attack distances for exactly one selected token on a gridless scene.",
+            "reach": "Reach",
+            "range": "Range",
+            "attackDistance": "{attacks}: {kind} {distance} {units}",
+            "cover": "Cover",
+            "selectArea": "Place this effect's area first. If it has multiple areas, select the one to use before rolling.",
+            "blocked": "The target has no line of effect from the origin."
+        }
+    }
+}
